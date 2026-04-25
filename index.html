@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ROS2 Rover Camera Feed</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">ROS2 Rover UI</p>
+          <h1>Camera Streams</h1>
+        </div>
+        <div class="bridge-control">
+          <label for="bridge-url">ROS bridge</label>
+          <div class="bridge-row">
+            <input id="bridge-url" type="url" value="ws://localhost:9090" />
+            <button id="connect-button" type="button">Connect</button>
+          </div>
+          <span id="bridge-status" class="status-pill status-offline">Offline</span>
+        </div>
+      </header>
+
+      <section id="camera-grid" class="camera-grid" aria-live="polite"></section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
