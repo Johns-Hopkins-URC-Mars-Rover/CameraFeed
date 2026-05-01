@@ -5,19 +5,31 @@ from camera_feed_subscriber import CameraFeedSubscriber
 
 rclpy.init()
 publisher = CameraFeedPublisher()
-ports = {}
+USB_CAMERA_PORTS = {
+    0: 0,
+    1: 1,
+    2: 2,
+    3: 3,
+}
+cameras = {}
 
-def identify_ports():
+def open_configured_cameras():
     """
-    Scans camera ports and stores the opened capture objects.
+    Opens the configured USB cameras and stores the capture objects.
 
-    Iterates through ports 0 through 9, attempts to open each one,
-    and adds each available camera to the global ports dictionary.
+    The dictionary maps our logical camera number to the OpenCV device index:
+    camera0 -> /camera0/image_raw
+    camera1 -> /camera1/image_raw
+    camera2 -> /camera2/image_raw
+    camera3 -> /camera3/image_raw
     """
-    for i in range(10):
-        cap = cv2.VideoCapture(i)
-        if not cap.isOpened():continue
-        ports[cap] = i
+    for camera_number, device_index in USB_CAMERA_PORTS.items():
+        cap = cv2.VideoCapture(device_index)
+        if not cap.isOpened():
+            raise RuntimeError(
+                f"Could not open camera{camera_number} on device index {device_index}."
+            )
+        cameras[cap] = camera_number
 
 def init_camera(port = 4):
     """
@@ -84,10 +96,10 @@ def send_frame(frame, port):
     rclpy.spin_once(publisher, timeout_sec=0.1)
 
 try:
-    identify_ports()
+    open_configured_cameras()
 
     while True:
-        for cap, port in ports.items():
+        for cap, port in cameras.items():
             image = capture_frame(cap)
             send_frame(image, port)
 
@@ -95,7 +107,7 @@ try:
             break
 
 finally:
-    for cap in ports:
+    for cap in cameras:
         release_camera(cap)
     publisher.destroy_node()
     rclpy.shutdown()
