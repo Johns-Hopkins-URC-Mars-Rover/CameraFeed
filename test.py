@@ -1,15 +1,12 @@
 import cv2
 import rclpy
 from camera_feed_publisher import CameraFeedPublisher
-from camera_feed_subscriber import CameraFeedSubscriber
 
 rclpy.init()
 publisher = CameraFeedPublisher()
 USB_CAMERA_PORTS = {
     0: 0,
-    1: 1,
-    2: 2,
-    3: 3,
+    1: 2
 }
 cameras = {}
 
@@ -23,32 +20,11 @@ def open_configured_cameras():
     camera2 -> /camera2/image_raw
     camera3 -> /camera3/image_raw
     """
-    for camera_number, device_index in USB_CAMERA_PORTS.items():
-        cap = cv2.VideoCapture(device_index)
+    for camera_number, port in USB_CAMERA_PORTS.items():
+        cap = cv2.VideoCapture(port)
         if not cap.isOpened():
-            raise RuntimeError(
-                f"Could not open camera{camera_number} on device index {device_index}."
-            )
+            pass
         cameras[cap] = camera_number
-
-def init_camera(port = 4):
-    """
-    Initialises and returns a camera using OpenCV's VideoCapture.
-
-    Opens the camera at the given port and returns the capture object
-    if the camera is available.
-
-    Returns:
-        cv2.VideoCapture: An opened camera capture object.
-
-    Raises:
-        RuntimeError: If the camera cannot be opened.
-    """
-    cap = cv2.VideoCapture(port)
-    if not cap.isOpened():
-        raise RuntimeError("Could not open camera. Check USB connection.")
-    return cap
-
 
 def capture_frame(cap):
     """
@@ -66,10 +42,10 @@ def capture_frame(cap):
     Raises:
         RuntimeError: If the frame could not be read.
     """
+    if (not cap): print("Not a valid camera object")
     ret, frame = cap.read()
     if not ret:
         raise RuntimeError("Failed to capture frame from camera.")
-
     return frame
 
 
@@ -97,6 +73,12 @@ def send_frame(frame, port):
 
 try:
     open_configured_cameras()
+
+    if (cameras):
+        pass
+    else:
+        raise RuntimeError("No camera were deteced")
+
 
     while True:
         for cap, port in cameras.items():

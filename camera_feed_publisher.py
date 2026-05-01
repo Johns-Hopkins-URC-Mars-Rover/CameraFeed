@@ -38,7 +38,7 @@ class CameraFeedPublisher(Node):
         if ( self.publisher_dict.get(port) ):
             self.publisher_dict[port].publish(msg)
             # Log the publish event to the console for debugging and tracking
-            self.get_logger().info(f'Publishing Frame')
+            self.get_logger().info(f'Publishing Frame {port}')
         else: return
     
 
