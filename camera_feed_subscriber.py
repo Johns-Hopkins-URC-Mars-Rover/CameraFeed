@@ -7,17 +7,27 @@ class CameraFeedSubscriber(Node):
 
     def __init__(self):
         super().__init__('camera_feed_subscriber')
-        
-        self.subscription = self.create_subscription(
-            Image,
-            'camera_frame',
-            self.frame_callback,
-            10
-        )
+
+        self.subscriptions = []
+        for topic in (
+            "/camera0/image_raw",
+            "/camera1/image_raw",
+            "/camera2/image_raw",
+            "/camera3/image_raw",
+            "/cameraz/image_raw",
+        ):
+            subscription = self.create_subscription(
+                Image,
+                topic,
+                lambda frame, topic=topic: self.frame_callback(frame, topic),
+                10
+            )
+            self.subscriptions.append(subscription)
+
         self.br = CvBridge()
 
-    def frame_callback(self, frame):
-        self.get_logger().info(f'Recieved Frame')
+    def frame_callback(self, frame, topic):
+        self.get_logger().info(f'Received frame from {topic}')
     
 
 def main(args=None):
